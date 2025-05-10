@@ -1,6 +1,7 @@
 ﻿using APP.Book.Features.Genres;
 using CORE.APP.Features;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,7 @@ namespace API.Book.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class GenresController : ControllerBase
     {
         private readonly ILogger<GenresController> _logger;
@@ -58,7 +60,7 @@ namespace API.Book.Controllers
         }
 
         // POST: api/Genres
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin")] 
         public async Task<IActionResult> Post(GenreCreateRequest genreCreateRequest)
         {
             try
@@ -83,7 +85,7 @@ namespace API.Book.Controllers
 
 
         // PUT: api/Genres
-        [HttpPut]
+        [HttpPut, Authorize(Roles = "Admin")]
         public async Task<IActionResult> Put(GenreUpdateRequest genreUpdateRequest)
         {
             try
@@ -108,7 +110,7 @@ namespace API.Book.Controllers
         }
 
         //DELETE: api/Books/1
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try

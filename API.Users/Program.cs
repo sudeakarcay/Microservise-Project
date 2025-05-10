@@ -1,7 +1,7 @@
-using APP.Book.Domain;
-using APP.Book.Features;
-using APP.Book.Features.Books;
+// Importing required namespaces for working with Users, authentication, EF Core, JWT, and Swagger
 using APP.Users;
+using APP.Users.Domain;
+using APP.Users.Features;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,17 +9,37 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Adds service defaults like configuration, health checks, telemetry, etc.
+// This is a helper method often defined in .NET template apps or extensions.
 builder.AddServiceDefaults();
 
-// Add services to the container.
-// IoC Container
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<BookDb>(options => options.UseSqlServer(connectionString));
-builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(BookDbHandler).Assembly));
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+
+// ======================================================
+// DATABASE CONFIGURATION
+// ======================================================
+
+// Fetch the connection string named "UsersDb" from appsettings.json or environment variables.
+// This determines where the application stores and retrieves user-related data.
+var connectionString = builder.Configuration.GetConnectionString("UsersDb");
+
+// Register the UsersDb context for Entity Framework Core using SQL Server.
+// This enables the app to interact with the Users database via LINQ and EF models.
+builder.Services.AddDbContext<UsersDb>(options => options.UseSqlServer(connectionString));
+
+// Alternative: Uncomment to use SQLite instead of SQL Server
+// builder.Services.AddDbContext<UsersDb>(options => options.UseSqlite(connectionString));
+
+
+
+// ======================================================
+// MEDIATR CONFIGURATION
+// ======================================================
+
+// Register MediatR services from the assembly containing UsersDbHandler.
+// This enables decoupled request/response logic using IRequest<T> and IRequestHandler<TRequest, TResponse>.
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(UsersDbHandler).Assembly));
+
 
 
 // ======================================================
@@ -66,10 +86,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 
 
-// Add controllers to the service container.
+// ======================================================
+// CONTROLLERS CONFIGURATION
+// ======================================================
+
+// Register controller services so that they can handle incoming HTTP requests.
 builder.Services.AddControllers();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Enables API explorer so endpoints can be discovered.
 builder.Services.AddEndpointsApiExplorer();
 
 
@@ -121,21 +145,43 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 
+
+// ======================================================
+// APPLICATION BUILD AND MIDDLEWARE PIPELINE
+// ======================================================
+
+// Build the configured application.
 var app = builder.Build();
 
+// Map default endpoints (if defined in service defaults or extensions)
 app.MapDefaultEndpoints();
 
-// Configure the HTTP request pipeline.
+// Use Swagger and Swagger UI only in development for API documentation and testing.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// Redirect HTTP requests to HTTPS for security.
 app.UseHttpsRedirection();
 
+
+
+// ======================================================
+// AUTHENTICATION
+// ======================================================
+
+// Enable authentication middleware so that [Authorize] works.
+app.UseAuthentication();
+
+
+
+// Enable authorization middleware to enforce roles and permissions.
 app.UseAuthorization();
 
+// Map attribute-based controllers to routes (e.g., [Route], [HttpGet], etc.)
 app.MapControllers();
 
+// Start the application and begin processing requests.
 app.Run();

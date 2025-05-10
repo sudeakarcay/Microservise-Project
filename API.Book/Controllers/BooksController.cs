@@ -1,6 +1,7 @@
 ﻿using APP.Book.Features.Books;
 using CORE.APP.Features;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,7 @@ namespace API.Book.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class BooksController : ControllerBase
     {
         private readonly IMediator _mediator;

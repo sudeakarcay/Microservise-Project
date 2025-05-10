@@ -1,6 +1,7 @@
 ﻿using APP.Book.Features.Authors;
 using CORE.APP.Features;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,7 @@ namespace API.Book.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AuthorsController : ControllerBase
     {
         private readonly ILogger<AuthorsController> _logger;
@@ -20,7 +22,7 @@ namespace API.Book.Controllers
         }
 
         // GET: api/Authors
-        [HttpGet]
+        [HttpGet, AllowAnonymous]
         public async Task<IActionResult> Get()
         {
             try
@@ -58,7 +60,7 @@ namespace API.Book.Controllers
         }
 
         // POST: api/Authors
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin")]
         public async Task<IActionResult> Post(AuthorCreateRequest authorCreateRequest)
         {
             try
@@ -82,7 +84,7 @@ namespace API.Book.Controllers
         }
 
         // PUT: api/Authors
-        [HttpPut]
+        [HttpPut, Authorize(Roles = "Admin")]
         public async Task<IActionResult> Put(AuthorUpdateRequest authorUpdateRequest)
         {
             try
@@ -107,7 +109,7 @@ namespace API.Book.Controllers
         }
 
         //DELETE: api/Authors/1
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try

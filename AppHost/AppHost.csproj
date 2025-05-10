@@ -15,6 +15,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\API.Book\API.Book.csproj" />
+    <ProjectReference Include="..\API.Gateway\API.Gateway.csproj" />
+    <ProjectReference Include="..\API.Users\API.Users.csproj" />
     <ProjectReference Include="..\MVC.Book\MVC.Book.csproj" />
   </ItemGroup>
 
